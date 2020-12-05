@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  # nginx:
+  #   image: nginx:1.19-alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  frontend:
+    build:
+      context: ./ui
+      target: node-stage
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ui/src:/opt/app/src:ro
+
+  backend:
+    build:
+      context: ./backend
+    command: ./manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - postgres
+    env_file:
+      - ./django.env
+      - ./postgres.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/ldfinance:/opt/app/ldfinance
+
+  postgres:
+    image: postgres:13-alpine
+    env_file:
+      - ./postgres.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

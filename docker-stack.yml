@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  frontend:
+    image: ubnetdef/lockdown-commerce-frontend
+    ports:
+      - "80:80"
+      - "8080:80"
+
+  backend:
+    image: ubnetdef/lockdown-commerce-backend
+    env_file:
+      - ./django.env
+      - ./postgres.env
+    ports:
+      - "8000:8000"
+
+  postgres:
+    image: postgres:13-alpine
+    env_file:
+      - ./postgres.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+# TODO: Replace with explicit filesystem path?
+volumes:
+  postgres_data:
