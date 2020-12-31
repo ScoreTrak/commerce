@@ -92,6 +92,12 @@ DATABASES = {
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
         'HOST': os.environ['POSTGRES_HOST'],
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': os.environ['DB_SSLMODE'],
+            'sslrootcert': os.environ['DB_SSLROOTCERT'],
+            'sslcert': os.environ['DB_SSLCERT'],
+            'sslkey': os.environ['DB_SSLKEY'],
+        },
     },
 }
 
