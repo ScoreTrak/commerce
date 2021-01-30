@@ -12,5 +12,6 @@ channels = "*"
 psycopg2-binary = "*"
 django-cockroachdb = "==3.1.*"
 django-debug-toolbar = "*"
+dj-database-url = "*"
 
 [requires]

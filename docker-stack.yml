@@ -10,8 +10,7 @@ services:
   backend:
     image: ubnetdef/lockdown-commerce-backend
     env_file:
-      - ./django.env
-      - ./postgres.env
+      - ./backend.env
     ports:
       - "8000:8000"
 
