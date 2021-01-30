@@ -7,7 +7,12 @@ ENV PATH /opt/app/.venv/bin:$PATH
 
 WORKDIR /opt/app
 
-RUN useradd -m -s /bin/bash django && chown django:django /opt/app
+ARG UNAME=django
+ARG UID=1234
+ARG GID=1234
+
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID  -s /bin/bash $UNAME && chown $UNAME:$UNAME /opt/app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc make python3 python3-dev python3-pip python3-setuptools \
@@ -16,12 +21,12 @@ RUN apt-get update \
 
 RUN pip3 install --no-cache-dir --trusted-host pypi.python.org pipenv
 
-USER django
+USER $UNAME
 
-COPY --chown=django:django Pipfile Pipfile.lock ./
+COPY --chown=$UNAME:$UNAME Pipfile Pipfile.lock ./
 RUN pipenv install --ignore-pipfile
 
-COPY --chown=django:django . .
+COPY --chown=$UNAME:$UNAME . .
 
 EXPOSE 8000
 
