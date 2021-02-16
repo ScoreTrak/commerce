@@ -85,6 +85,7 @@ WSGI_APPLICATION = 'ldfinance.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
+        default='sqlite:///{}'.format(BASE_DIR / ".." / "db.sqlite3"),
         # dj-database-url does not currently support CockroachDB.
         engine='django_cockroachdb'
         if os.getenv('USE_COCKROACHDB', False)
