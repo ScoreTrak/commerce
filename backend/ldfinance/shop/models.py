@@ -8,9 +8,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_published = models.BooleanField()
     image = models.URLField(default="https://bank.ubnetdef.org/default-product-image.png")
-    # TODO: Add image(s)?
-    # TODO: Limit number of purchases for each team?
-    # max_per_user = models.SmallIntegerField(null=True, blank=True)
+    max_per_account = models.SmallIntegerField(null=True, blank=True)
+    available_until = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -43,3 +42,16 @@ class Order(models.Model):
         blank=True,
         related_name="+",
     )
+
+
+class Question(models.Model):
+    """Additional question to be asked while placing the order."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    text = models.CharField(max_length=100)
+
+
+class Answer(models.Model):
+    """Answer to a product's question in an order."""
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.CharField(max_length=100)

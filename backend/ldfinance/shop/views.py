@@ -6,12 +6,13 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.response import Response
 
 from ldfinance.bank.models import Account, Transaction
-from ldfinance.shop.models import Order, Product
+from ldfinance.shop.models import Answer, Order, Product
 from ldfinance.shop.serializers import (
     OrderSerializer,
     OrderCreateSerializer,
     ProductSerializer,
 )
+from ldfinance.shop.utils import send_order_notification
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -19,7 +20,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = Product.objects.all().prefetch_related("question_set")
         if not self.request.user.is_staff:
             queryset = queryset.filter(is_published=True)
         return queryset
@@ -64,6 +65,10 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
                 "sale", "sale__source", "sale__destination",
                 "refund", "refund__source", "refund__destination",
             )
+            .prefetch_related(
+                "product__question_set",
+                "answer_set", "answer_set__question"
+            )
             .order_by("-sale__created_at")
         )
 
@@ -71,6 +76,18 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     def perform_create(self, serializer):
         account = serializer.validated_data["account"]
         product = serializer.validated_data["product"]
+        challenges = serializer.validated_data.get("challenges")
+        if product.max_per_account is not None:
+            purchase_count = Order.objects.filter(
+                product=product,
+                sale__source=account,
+                refund__isnull=True,
+            ).count()
+            if purchase_count >= product.max_per_account:
+                # TODO: More descriptive error message.
+                raise serializers.ValidationError(
+                    f"{product.name!r} can no longer be purchased by this account.",
+                )
         # Get the latest data and lock the row.
         account = Account.objects.select_for_update().get(id=account.id)
         if account.balance < product.price:
@@ -87,10 +104,20 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
             destination=shop,
             description=f"Purchased {product.name!r} from the store",
         )
-        Order.objects.create(
+        order = Order.objects.create(
             product=product,
             sale=transaction,
         )
+        if challenges is not None:
+            Answer.objects.bulk_create([
+                Answer(
+                    order=order,
+                    question=challenge["question"],
+                    text=challenge["answer"],
+                )
+                for challenge in challenges
+            ])
+        send_order_notification(order)
 
     @action(detail=True, methods=["post"])
     @transaction.atomic
@@ -122,7 +149,7 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
         refund_source.save()
         refund_destination.balance += refund_amount
         refund_destination.save()
-        
+
         return Response()
 
     @action(detail=True, methods=["post"])
