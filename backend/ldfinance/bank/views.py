@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from ldfinance.bank.models import Account, Transaction
@@ -62,7 +63,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         user.account_set.add(account)
 
         return Response()
-    
+
     @action(detail=True, methods=["post"])
     @transaction.atomic
     def deposit(self, request, pk=None):
@@ -87,7 +88,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         deposits = serializer.validated_data["deposits"]
         description = serializer.validated_data["description"]
-        
+
         for deposit in deposits:
             account_name = f"Team {deposit['team']}"
             try:
@@ -112,3 +113,9 @@ class AccountViewSet(viewsets.ModelViewSet):
         transactions = Transaction.objects.all().delete()
 
         return Response()
+
+
+class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAdminUser]
+    serializer_class = TransactionSerializer
+    queryset = Transaction.objects.order_by("-created_at").select_related("source", "destination")

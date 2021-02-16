@@ -25,6 +25,7 @@ import ldfinance.shop.views as shop_views
 
 router = routers.DefaultRouter()
 router.register("bank/accounts", bank_views.AccountViewSet)
+router.register("bank/transactions", bank_views.TransactionViewSet)
 router.register("shop/orders", shop_views.OrderViewSet)
 router.register("shop/products", shop_views.ProductViewSet)
 
