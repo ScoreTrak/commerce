@@ -20,6 +20,7 @@ class CurrentUserView(RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+
 @method_decorator(sensitive_post_parameters(), name="dispatch")
 @method_decorator(never_cache, name="dispatch")
 class LogInView(ObtainAuthToken):
