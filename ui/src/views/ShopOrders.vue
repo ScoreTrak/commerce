@@ -5,10 +5,20 @@
     <v-data-table
       :headers="tableHeaders"
       :items="tableItems"
+      :search="search"
+      :custom-filter="filterItems"
       :loading="isLoading"
+      show-expand
     >
       <template v-slot:top>
         <v-switch v-model="isPendingOnly" label="Only show pending orders" />
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        />
       </template>
       <template v-slot:item.time="{ item }">
         <small>{{ formatDate(item.sale.created_at) }}</small>
@@ -35,6 +45,18 @@
         >
           Refund
         </v-btn>
+      </template>
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length">
+          <dl
+            v-for="challenge in item.challenges"
+            :key="challenge.toString()"
+          >
+            <dt style="font-weight: bold">{{ challenge.question }}</dt>
+            <dd style="font-style: italic">{{ challenge.answer }}</dd>
+          </dl>
+          <span v-if="item.challenges.length === 0">&mdash;</span>
+        </td>
       </template>
     </v-data-table>
     <v-dialog v-model="dialog.isOpen" max-width="600px">
@@ -95,6 +117,7 @@ export default {
     isLoading: false,
     isPendingOnly: false,
     orders: [],
+    search: '',
   }),
   methods: {
     async fetchOrders() {
@@ -106,6 +129,12 @@ export default {
         this.orders = await response.json();
       }
       this.isLoading = false;
+    },
+    filterItems(value, search, item) {
+      const query = search.toLocaleLowerCase();
+      return [item.sale.source, item.product.name].find(
+        (str) => str.toLocaleLowerCase().includes(query),
+      ) !== undefined;
     },
     formatDate(dateTime) {
       return new Date(dateTime).toLocaleDateString();

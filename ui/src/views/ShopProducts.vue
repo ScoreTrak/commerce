@@ -10,12 +10,13 @@
         sm="6"
         lg="4"
         xl="3"
-        v-for="product in productList.filter((p) => p.is_published)"
+        v-for="product in publishedProductList"
         :key="product.id"
       >
         <ShopProductCard :product="product" />
       </v-col>
     </v-row>
+    <p v-if="publishedProductList.length === 0">No products</p>
   </v-container>
 </template>
 
@@ -32,6 +33,9 @@ export default {
   computed: {
     ...mapGetters('shop', ['productList']),
     ...mapGetters('users', ['isStaff']),
+    publishedProductList() {
+      return this.productList.filter((p) => p.is_published);
+    },
   },
 };
 </script>

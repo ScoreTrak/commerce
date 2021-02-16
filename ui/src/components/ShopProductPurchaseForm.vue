@@ -9,10 +9,23 @@
           {{ error }}
         </v-alert>
         <BankAccountPicker v-model="account" />
+        <v-text-field
+          v-for="question in product.questions"
+          :key="question.id"
+          :label="question.text"
+          v-model="challenges[question.id]"
+          filled
+        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" text type="submit" :disabled="account === null">
+        <v-btn
+          :disabled="!isFormValid"
+          :loading="isRequestInProgress"
+          color="primary"
+          text
+          type="submit"
+        >
           Purchase
         </v-btn>
       </v-card-actions>
@@ -28,9 +41,20 @@ export default {
   components: {
     BankAccountPicker,
   },
+  computed: {
+    isFormValid() {
+      return (
+        this.account !== null
+        && Object.values(this.challenges).filter((a) => a.length > 0).length
+            === this.product.questions.length
+      );
+    },
+  },
   data: () => ({
     account: null,
+    challenges: {},
     error: '',
+    isRequestInProgress: false,
     rules: {
       required: (value) => !!value || 'This field is required.',
     },
@@ -38,9 +62,13 @@ export default {
   methods: {
     async onSubmit() {
       this.error = '';
+      this.isRequestInProgress = true;
       const response = await HttpClient.post('/api/shop/orders/', {
         account: this.account.id,
         product: this.product.id,
+        challenges: Object.entries(this.challenges).map(
+          ([question, answer]) => ({ question, answer }),
+        ),
       });
       if (!response.ok) {
         const error = await response.json();
@@ -48,9 +76,20 @@ export default {
         if (error instanceof Array) {
           this.error = error.join('. ');
         }
+        this.isRequestInProgress = false;
         return;
       }
+
+      // TODO: Better success handling!
       this.error = 'Success';
+      setTimeout(() => {
+        this.$emit('success');
+        this.isRequestInProgress = false;
+
+        this.error = '';
+        // this.account = null;
+        this.challenges = {};
+      }, 3000);
     },
   },
   props: {

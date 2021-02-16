@@ -12,7 +12,7 @@
     <v-card-actions>
       <v-card-text>Price: {{ formatCurrency(product.price) }}</v-card-text>
       <v-spacer />
-      <v-dialog max-width="500px">
+      <v-dialog v-model="isFormVisible" max-width="500px">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             v-bind="attrs"
@@ -22,7 +22,10 @@
             Buy
           </v-btn>
         </template>
-        <ShopProductPurchaseForm :product="product" />
+        <ShopProductPurchaseForm
+          :product="product"
+          @success="isFormVisible = false"
+        />
       </v-dialog>
     </v-card-actions>
   </v-card>
@@ -36,6 +39,9 @@ export default {
   components: {
     ShopProductPurchaseForm,
   },
+  data: () => ({
+    isFormVisible: false,
+  }),
   mixins: [currencyMixin],
   props: {
     product: {
