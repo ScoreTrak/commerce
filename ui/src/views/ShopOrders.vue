@@ -20,17 +20,17 @@
           hide-details
         />
       </template>
-      <template v-slot:item.time="{ item }">
+      <template v-slot:[`item.time`]="{ item }">
         <small>{{ formatDate(item.sale.created_at) }}</small>
         <br>
         {{ formatTime(item.sale.created_at) }}
       </template>
-      <template v-slot:item.product="{ item }">
+      <template v-slot:[`item.product`]="{ item }">
         <router-link :to="{ name: 'shop-product', params: { productId: item.product.id }}">
           {{ item.product.name }}
         </router-link>
       </template>
-      <template v-slot:item.actions="{ item: order }">
+      <template v-slot:[`item.actions`]="{ item: order }">
         <v-btn
           v-if="order.completed_at === null"
           @click="openDialog(order, 'complete')"
