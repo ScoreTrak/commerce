@@ -1,0 +1,60 @@
+name: Docker Image CI
+on:
+  release:
+    types: [published]
+jobs:
+  build-and-push-lockdown-commerce-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: PrepareReg Names
+        run: |
+          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
+      - name: Build container image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/lockdown-commerce-backend:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/lockdown-commerce-backend:${{ env.IMAGE_TAG }}
+
+  build-and-push-lockdown-commerce-ui:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: PrepareReg Names
+        run: |
+          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
+      - name: Build container image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ui
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/lockdown-commerce-ui:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/lockdown-commerce-ui:${{ env.IMAGE_TAG }}
