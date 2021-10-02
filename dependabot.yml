@@ -9,3 +9,7 @@ updates:
     directory: "/ui" # Location of package manifests
     schedule:
       interval: "daily"
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/backend" # Location of package manifests
+    schedule:
+      interval: "daily"
