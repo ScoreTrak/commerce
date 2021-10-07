@@ -9,7 +9,7 @@
       <div class="d-flex align-center">
         <router-link :to="{ name: 'home' }">
           <v-img
-            alt="UBNetDef logo"
+            alt="logo"
             class="shrink mt-1"
             contain
             min-width="100"

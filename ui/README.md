@@ -1,4 +1,4 @@
-# lockdown-finance
+# commerce
 
 ## Project setup
 ```
