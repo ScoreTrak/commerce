@@ -5,9 +5,9 @@ class Command(BaseCommand):
     help = "Creates an admin user non-interactively if it doesn't exist"
 
     def add_arguments(self, parser):
-        parser.add_argument('--username', help="Admin's username")
-        parser.add_argument('--email', help="Admin's email")
-        parser.add_argument('--password', help="Admin's password")
+        parser.add_argument('--username', help="Admin's username", default=os.environ.get('DJANGO_SUPERUSER_USERNAME'))
+        parser.add_argument('--email', help="Admin's email", default=os.environ.get('DJANGO_SUPERUSER_EMAIL'))
+        parser.add_argument('--password', help="Admin's password", default=os.environ.get('DJANGO_SUPERUSER_PASSWORD'))
 
     def handle(self, *args, **options):
         User = get_user_model()
