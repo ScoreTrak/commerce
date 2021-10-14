@@ -7,12 +7,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--username', help="Admin's username", default=os.environ.get('DJANGO_SUPERUSER_USERNAME'))
-        parser.add_argument('--email', help="Admin's email", default=os.environ.get('DJANGO_SUPERUSER_EMAIL'))
         parser.add_argument('--password', help="Admin's password", default=os.environ.get('DJANGO_SUPERUSER_PASSWORD'))
 
     def handle(self, *args, **options):
         User = get_user_model()
         if not User.objects.filter(username=options['username']).exists():
             User.objects.create_superuser(username=options['username'],
-                                          email=options['email'],
                                           password=options['password'])
