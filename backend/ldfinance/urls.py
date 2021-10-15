@@ -21,6 +21,8 @@ from rest_framework import routers
 
 import ldfinance.bank.views as bank_views
 import ldfinance.shop.views as shop_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 router = routers.DefaultRouter()
