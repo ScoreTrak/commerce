@@ -34,4 +34,4 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/users/", include("ldfinance.users.urls")),
     path("_/debug/", include(debug_toolbar.urls)),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
