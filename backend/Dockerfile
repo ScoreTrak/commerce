@@ -28,6 +28,8 @@ RUN pipenv install --ignore-pipfile
 
 COPY --chown=$UNAME:$UNAME . .
 
+RUN mkdir static; ./manage.py collectstatic
+
 EXPOSE 8000
 
 CMD ["daphne", "-b", "0.0.0.0", "ldfinance.asgi:application"]
