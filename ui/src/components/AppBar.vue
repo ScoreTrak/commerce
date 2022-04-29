@@ -1,10 +1,6 @@
 <template>
   <div>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="isDrawerOpen = !isDrawerOpen" />
       <div class="d-flex align-center">
         <router-link :to="{ name: 'home' }">
@@ -38,18 +34,14 @@
       </v-btn>
       <v-dialog v-else max-width="600px">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            v-bind="attrs"
-            v-on="on"
-            text
-          >
+          <v-btn v-bind="attrs" v-on="on" text>
             Log in
           </v-btn>
         </template>
         <LogInForm />
       </v-dialog>
     </v-app-bar>
-    <v-navigation-drawer v-model="isDrawerOpen" app absolute bottom temporary>
+    <v-navigation-drawer v-model="isDrawerOpen" app bottom temporary>
       <v-list nav>
         <v-subheader>Bank</v-subheader>
 
