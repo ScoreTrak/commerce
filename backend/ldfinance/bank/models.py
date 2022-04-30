@@ -12,7 +12,11 @@ def _amount_sum_from_past_hour(transaction_queryset):
     one_hour_ago = timezone.now() - timedelta(hours=1)
     return (transaction_queryset
         .filter(created_at__gte=one_hour_ago)
-        .aggregate(amount_sum=Coalesce(models.Sum("amount"), 0))["amount_sum"]
+        .aggregate(amount_sum=Coalesce(
+            models.Sum("amount"),
+            0.0,
+            output_field=models.DecimalField(max_digits=12, decimal_places=2),
+        ))["amount_sum"]
     )
 
 
